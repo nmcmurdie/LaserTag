@@ -12,6 +12,7 @@
 #define IIR_A_COEFFICIENT_COUNT 10
 #define IIR_B_COEFFICIENT_COUNT 11
 #define QUEUE_OLDEST_ELEM 0
+#define OUTPUT_QUEUE_SIZE 2000
 
 static queue_t zQueue[FILTER_IIR_COUNT];
 static queue_t outputQueue[FILTER_IIR_COUNT];
@@ -25,7 +26,28 @@ const static double FIRCoefficients[FIR_COEFFICIENT_COUNT] = {
     -1.1538970332472540e-03, -1.4254746936265955e-03, -1.5744703111426981e-03,
     -1.5281041447445794e-03, -1.2208092333090719e-03, -6.1008312441271589e-04, 
     3.0761698758506020e-04, 1.4840192333212628e-03, 2.8123077568332064e-03,
-    4.1290616416556000e-03, 5.2#define OUTPUT_QUEUE_SIZE 2000
+    4.1290616416556000e-03, 5.2263464670258821e-03, 5.8739882867061598e-03,
+    5.8504032099208096e-03, 4.9787419333799775e-03, 3.1637974805960069e-03,
+    4.2435139609132765e-04, -3.0844289197247210e-03, -7.0632027332701800e-03,
+    -1.1078458037608587e-02, -1.4591395057493114e-02, -1.7004337345765962e-02, 
+    -1.7720830774014484e-02, -1.6213409845727566e-02, -1.2091458677988302e-02,
+    -5.1609257765542595e-03, 4.5319860006883522e-03, 1.6679627700682677e-02, 
+    3.0718365411587255e-02, 4.5861875593064996e-02, 6.1160185621895728e-02,
+    7.5579213982547147e-02, 8.8092930943210607e-02, 9.7778502396672365e-02,
+    1.0390414346016495e-01, 1.0600000000000000e-01, 1.0390414346016495e-01,
+    9.7778502396672365e-02, 8.8092930943210607e-02, 7.5579213982547147e-02,
+    6.1160185621895728e-02, 4.5861875593064996e-02, 3.0718365411587255e-02, 
+    1.6679627700682677e-02, 4.5319860006883522e-03, -5.1609257765542595e-03, 
+    -1.2091458677988302e-02, -1.6213409845727566e-02, -1.7720830774014484e-02,
+    -1.7004337345765962e-02, -1.4591395057493114e-02, -1.1078458037608587e-02,
+    -7.0632027332701800e-03, -3.0844289197247210e-03, 4.2435139609132765e-04, 
+    3.1637974805960069e-03, 4.9787419333799775e-03, 5.8504032099208096e-03,
+    5.8739882867061598e-03, 5.2263464670258821e-03, 4.1290616416556000e-03,
+    2.8123077568332064e-03, 1.4840192333212628e-03, 3.0761698758506020e-04,
+    -6.1008312441271589e-04, -1.2208092333090719e-03, -1.5281041447445794e-03,
+    -1.5744703111426981e-03, -1.4254746936265955e-03, -1.1538970332472540e-03,
+    -8.2651441681321381e-04, -4.9526428865281219e-04, -1.9349227837935689e-04,
+    6.3039002645022389e-05, 2.7155425450406482e-04, 4.3579622275120866e-04
 };
 const static double iirACoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_A_COEFFICIENT_COUNT] = {
 {-5.9637727070164015e+00, 1.9125339333078248e+01, -4.0341474540744173e+01, 6.1537466875368821e+01, -7.0019717951472188e+01, 6.0298814235238872e+01, -3.8733792862566290e+01, 1.7993533279581058e+01, -5.4979061224867651e+00, 9.0332828533799547e-01},
@@ -149,7 +171,7 @@ double filter_iirFilter(uint16_t filterNumber) {
 
     for (uin32_t i = 0; i < IIR_OUTPUT_QUEUE_SIZE - 1 - A_COEFFICIENT_COUNT; i++) {
         // Process the queue using the IIR A filter coefficients
-        output -= iirACoefficientConstants[filterNumber][i] * queue_readElementAt(&yQueue, IIR_A_COEFFICIENT_COUNT - 1 - i);
+        output -= iirACoefficientConstants[filterNumber][i] * queue_readElementAt(&zQueue, IIR_A_COEFFICIENT_COUNT - 1 - i);
     }
 
     queue_overwritePush(&(zQueue[filterNumber]), output);
@@ -245,22 +267,22 @@ void filter_getNormalizedPowerValues(double normalizedArray[],
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-    
+    return FIRCoefficients[];    
 }
 
 // Returns the number of FIR coefficients.
 uint32_t filter_getFirCoefficientCount() {
-
+    return FIR_COEFFICIENT_COUNT;
 }
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirACoefficientArray(uint16_t filterNumber) {
-
+    return 
 }
 
 // Returns the number of A coefficients.
 uint32_t filter_getIirACoefficientCount() {
-
+    return IIR_A_COEFFICIENT_COUNT;
 }
 
 // Returns the array of coefficients for a particular filter number.
@@ -270,17 +292,17 @@ const double *filter_getIirBCoefficientArray(uint16_t filterNumber) {
 
 // Returns the number of B coefficients.
 uint32_t filter_getIirBCoefficientCount() {
-
+    return IIR_B_COEFFICIENT_COUNT;
 }
 
 // Returns the size of the yQueue.
 uint32_t filter_getYQueueSize() {
-
+    return Y_QUEUE_SIZE;
 }
 
 // Returns the decimation value.
 uint16_t filter_getDecimationValue() {
-
+    return FILTER_FIR_DECIMATION_FACTOR;
 }
 
 // Returns the address of xQueue.
