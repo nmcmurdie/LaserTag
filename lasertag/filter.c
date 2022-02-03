@@ -1,8 +1,70 @@
 #include "filter.h"
 
+#define FILTER_IIR_COUNT 10
+#define IIR_A_COEFFICIENT_COUNT 10
+#define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+#define OUTPUT_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+#define X_QUEUE_SIZE 10
+#define Y_QUEUE_SIZE 10
+#define QUEUE_INIT_VAL 0
+
+static queue_t zQueue[FILTER_IIR_COUNT];
+static queue_t outputQueue[FILTER_IIR_COUNT];
+static queue_t xQueue;
+static queue_t yQueue;
+
+// Initialize Z-queues and fill them with zeros
+void initZQueues() {
+    for (uint32_t i = 0; i < FILTER_IIR_COUNT; i++) {
+        // Init each IIR filter
+        queue_init(&(zQueue[i], Z_QUEUE_SIZE);
+
+        for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++) {
+            // Push all zeros to each filter
+            queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VAL);
+        }
+    }
+}
+
+// Initialize output queues and fill them with zeros
+void initOutputQueues() {
+    for (uint32_t i = 0; i < FILTER_IIR_COUNT; i++) {
+        // Init each IIR filter
+        queue_init(&(outputQueue[i], OUTPUT_QUEUE_SIZE);
+
+        for (uint32_t j = 0; j < OUTPUT_QUEUE_SIZE; j++) {
+            // Push all zeros to each filter
+            queue_overwritePush(&(outputQueue[i]), QUEUE_INIT_VAL);
+        }
+    }
+}
+
+// Initialize xQueue
+void initXQueue() {
+    queue_init(&xQueue, X_QUEUE_SIZE);
+
+    for (uint32_t j = 0; j < X_QUEUE_SIZE; j++) {
+        // Push all zeros to each filter
+        queue_overwritePush(&xQueue, QUEUE_INIT_VAL);
+    }
+}
+
+// Initialize yQueue
+void initYQueue() {
+    queue_init(&yQueue, Y_QUEUE_SIZE);
+
+    for (uint32_t j = 0; j < Y_QUEUE_SIZE; j++) {
+        // Push all zeros to each filter
+        queue_overwritePush(&yQueue, QUEUE_INIT_VAL);
+    }
+}
+
 // Must call this prior to using any filter functions.
 void filter_init() {
-
+    initZQueues();
+    initOutputQueues();
+    initXQueue();
+    initYQueue();
 }
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
@@ -138,5 +200,5 @@ queue_t *filter_getZQueue(uint16_t filterNumber) {
 
 // Returns the address of the IIR output-queue for a specific filter-number.
 queue_t *filter_getIirOutputQueue(uint16_t filterNumber) {
-    
+
 }
