@@ -4,14 +4,30 @@
 #define IIR_A_COEFFICIENT_COUNT 10
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
 #define OUTPUT_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
-#define X_QUEUE_SIZE 10
-#define Y_QUEUE_SIZE 10
+#define X_QUEUE_SIZE 81
+#define Y_QUEUE_SIZE 81
 #define QUEUE_INIT_VAL 0
 
 static queue_t zQueue[FILTER_IIR_COUNT];
 static queue_t outputQueue[FILTER_IIR_COUNT];
 static queue_t xQueue;
 static queue_t yQueue;
+const static double FIRCoefficients[X_QUEUE_SIZE] = {
+    4.3579622275120866e-04, 2.7155425450406482e-04, 6.3039002645022389e-05,
+    -1.9349227837935689e-04, -4.9526428865281219e-04, -8.2651441681321381e-04,
+    -1.1538970332472540e-03, -1.4254746936265955e-03, -1.5744703111426981e-03,
+    -1.5281041447445794e-03, -1.2208092333090719e-03, -6.1008312441271589e-04, 
+    3.0761698758506020e-04, 1.4840192333212628e-03, 2.8123077568332064e-03,
+    4.1290616416556000e-03, 5.2263464670258821e-03, 5.8739882867061598e-03, 
+    5.8504032099208096e-03, 4.9787419333799775e-03, 3.1637974805960069e-03,
+    4.2435139609132765e-04, -3.0844289197247210e-03, -7.0632027332701800e-03,
+    -1.1078458037608587e-02, -1.4591395057493114e-02, -1.7004337345765962e-02,
+    -1.7720830774014484e-02, -1.6213409845727566e-02, -1.2091458677988302e-02,
+    -5.1609257765542595e-03, 4.5319860006883522e-03, 1.6679627700682677e-02,
+    3.0718365411587255e-02, 4.5861875593064996e-02, 6.1160185621895728e-02,
+    7.5579213982547147e-02, 8.8092930943210607e-02, 9.7778502396672365e-02,
+    1.0390414346016495e-01
+};
 
 // Initialize Z-queues and fill them with zeros
 void initZQueues() {
@@ -69,7 +85,7 @@ void filter_init() {
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
 void filter_addNewInput(double x) {
-
+    queue_push(&xQueue, x);
 }
 
 // Fills a queue with the given fillValue. For example,
@@ -77,13 +93,19 @@ void filter_addNewInput(double x) {
 // after executing this function, the queue will contain 10 values
 // all of them 1.0.
 void filter_fillQueue(queue_t *q, double fillValue) {
-
+    
 }
 
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
 double filter_firFilter() {
+    double output = 0;
 
+    for (uin32_t i = 0; i < X_QUEUE_SIZE; i++) {
+        output += FIRCoefficients[i] * queue_readElementAt(&xQueue, X_QUEUE_SIZE - 1 - i);
+    }
+
+    return output;
 }
 
 // Use this to invoke a single iir filter. Input comes from yQueue.
