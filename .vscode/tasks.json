@@ -18,7 +18,7 @@
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
-            "command": "make -j4",
+            "command": "cmake ..; make -j4; ../run_elf_on_board.py lasertag/lasertag.elf",
             "group": {
                 "kind": "build",
                 "isDefault": true
