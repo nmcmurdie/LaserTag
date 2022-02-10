@@ -14,12 +14,17 @@
 #define QUEUE_OLDEST_ELEM 0
 #define OUTPUT_QUEUE_SIZE 2000
 #define FILTER_FIR_DECIMATION_FACTOR 10
+#define X_QUEUE_NAME "X-Queue"
+#define Y_QUEUE_NAME "Y-Queue"
+#define Z_QUEUE_NAME "Z-Queue"
+#define OUTPUT_QUEUE_NAME "Output-Queue"
 
 static queue_t zQueue[FILTER_IIR_COUNT];
 static queue_t outputQueue[FILTER_IIR_COUNT];
 static queue_t xQueue;
 static queue_t yQueue;
-static double prevPower, oldestValue;
+static double prevPower[FILTER_FREQUENCY_COUNT];
+static double oldestValue[FILTER_FREQUENCY_COUNT];
 static double currentPowerValue[FILTER_FREQUENCY_COUNT];
 const static double FIRCoefficients[FIR_COEFFICIENT_COUNT] = {
     4.3579622275120866e-04, 2.7155425450406482e-04, 6.3039002645022389e-05,
@@ -79,7 +84,7 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 void initZQueues() {
     for (uint32_t i = 0; i < FILTER_IIR_COUNT; i++) {
         // Init each IIR filter
-        queue_init(&(zQueue[i], Z_QUEUE_SIZE);
+        queue_init(&(zQueue[i]), Z_QUEUE_SIZE, Z_QUEUE_NAME);
 
         for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++) {
             // Push all zeros to each filter
@@ -92,7 +97,7 @@ void initZQueues() {
 void initOutputQueues() {
     for (uint32_t i = 0; i < FILTER_IIR_COUNT; i++) {
         // Init each IIR filter
-        queue_init(&(outputQueue[i], OUTPUT_QUEUE_SIZE);
+        queue_init(&(outputQueue[i]), OUTPUT_QUEUE_SIZE, OUTPUT_QUEUE_NAME);
 
         for (uint32_t j = 0; j < OUTPUT_QUEUE_SIZE; j++) {
             // Push all zeros to each filter
@@ -103,7 +108,7 @@ void initOutputQueues() {
 
 // Initialize xQueue
 void initXQueue() {
-    queue_init(&xQueue, X_QUEUE_SIZE);
+    queue_init(&xQueue, X_QUEUE_SIZE, X_QUEUE_NAME);
 
     for (uint32_t j = 0; j < X_QUEUE_SIZE; j++) {
         // Push all zeros to each filter
@@ -113,7 +118,7 @@ void initXQueue() {
 
 // Initialize yQueue
 void initYQueue() {
-    queue_init(&yQueue, Y_QUEUE_SIZE);
+    queue_init(&yQueue, Y_QUEUE_SIZE, Y_QUEUE_NAME);
 
     for (uint32_t j = 0; j < Y_QUEUE_SIZE; j++) {
         // Push all zeros to each filter
@@ -131,7 +136,7 @@ void filter_init() {
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
 void filter_addNewInput(double x) {
-    queue_push(&xQueue, x);
+    queue_overwritePush(&xQueue, x);
 }
 
 // Fills a queue with the given fillValue. For example,
@@ -143,20 +148,21 @@ void filter_fillQueue(queue_t *q, double fillValue) {
 
     for (uint32_t i = 0; i < size; i++) {
         // Overwrite contents of queue with the fill value
-        queue_overwritePush(fillValue);
+        queue_overwritePush(q, fillValue);
     }
 }
 
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
 double filter_firFilter() {
-    double output = 0;
+    double output = 0.0;
 
-    for (uin32_t i = 0; i < X_QUEUE_SIZE; i++) {
+    for (uint32_t i = 0; i < X_QUEUE_SIZE; i++) {
         // Process the queue using the FIR filter coefficients
         output += FIRCoefficients[i] * queue_readElementAt(&xQueue, X_QUEUE_SIZE - 1 - i);
     }
 
+    queue_overwritePush(&yQueue, output);
     return output;
 }
 
@@ -165,14 +171,14 @@ double filter_firFilter() {
 double filter_iirFilter(uint16_t filterNumber) {
     double output = 0.0;
 
-    for (uin32_t i = 0; i < IIR_B_COEFFICIENT_COUNT; i++) {
+    for (uint32_t i = 0; i < IIR_B_COEFFICIENT_COUNT; i++) {
         // Process the queue using the IIR B filter coefficients
         output += iirBCoefficientConstants[filterNumber][i] * queue_readElementAt(&yQueue, IIR_B_COEFFICIENT_COUNT - 1 - i);
     }
 
-    for (uin32_t i = 0; i < IIR_OUTPUT_QUEUE_SIZE - 1 - A_COEFFICIENT_COUNT; i++) {
+    for (uint32_t i = 0; i < IIR_A_COEFFICIENT_COUNT; i++) {
         // Process the queue using the IIR A filter coefficients
-        output -= iirACoefficientConstants[filterNumber][i] * queue_readElementAt(&zQueue, IIR_A_COEFFICIENT_COUNT - 1 - i);
+        output -= iirACoefficientConstants[filterNumber][i] * queue_readElementAt(&(zQueue[filterNumber]), IIR_A_COEFFICIENT_COUNT - 1 - i);
     }
 
     queue_overwritePush(&(zQueue[filterNumber]), output);
@@ -206,13 +212,13 @@ double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch,
         }
     }
     else {
-        // Not computing from scratch, remove oldest value and add newest value (squared)
+        // Not computing from scratch, remove oldest value and add newest value squared
         double newestValue = queue_readElementAt(&(outputQueue[filterNumber]), OUTPUT_QUEUE_SIZE - 1);
-        power = prevPower - (oldestValue * oldestValue) + (newestValue * newestValue);
+        power = prevPower[filterNumber] - (oldestValue[filterNumber] * oldestValue[filterNumber]) + (newestValue * newestValue);
     }
 
-    prevPower = power;
-    oldestValue = queue_readElementAt(&(outputQueue[filterNumber]), QUEUE_OLDEST_ELEM);
+    prevPower[filterNumber] = power;
+    oldestValue[filterNumber] = queue_readElementAt(&(outputQueue[filterNumber]), QUEUE_OLDEST_ELEM);
     currentPowerValue[filterNumber] = power;
     return power;
 }
@@ -268,7 +274,7 @@ void filter_getNormalizedPowerValues(double normalizedArray[],
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-    return &FIRCoefficients;    
+    return FIRCoefficients;    
 }
 
 // Returns the number of FIR coefficients.
@@ -278,7 +284,7 @@ uint32_t filter_getFirCoefficientCount() {
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirACoefficientArray(uint16_t filterNumber) {
-    return &iirACoefficientConstants;
+    return iirACoefficientConstants[filterNumber];
 }
 
 // Returns the number of A coefficients.
@@ -288,7 +294,7 @@ uint32_t filter_getIirACoefficientCount() {
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirBCoefficientArray(uint16_t filterNumber) {
-    return &iirBCoefficientConstants;
+    return iirBCoefficientConstants[filterNumber];
 }
 
 // Returns the number of B coefficients.
