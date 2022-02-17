@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "stdio.h"
 
-#define TRANSMITTER_PULSE_WIDTH 2000
+//#define TRANSMITTER_PULSE_WIDTH 2000
 #define TRANSMITTER_PULSE_TEST_WIDTH 200
 #define INVALID_STATE "INVALID STATE\n"
 #define TRANSMITTER_HIGH_VALUE 1
@@ -55,16 +55,16 @@ void debugStatePrint() {
     previousState = currentState;     // keep track of the last state that you were in.
     switch(currentState) {            // This prints messages based upon the state that you were in.
       case init_st:
-        printf(INIT_ST_MSG);
+        DPRINTF(INIT_ST_MSG);
         break;
       case waiting_st:
-        printf(WAITING_ST_MSG);
+        DPRINTF(WAITING_ST_MSG);
         break;
       case transmit_low_st:
-        printf(TRANSMIT_LOW_ST_MSG);
+        DPRINTF(TRANSMIT_LOW_ST_MSG);
         break;
       case transmit_high_st:
-        printf(TRANSMIT_HIGH_ST_MSG);
+        DPRINTF(TRANSMIT_HIGH_ST_MSG);
         break;
      }
   }
@@ -116,8 +116,7 @@ uint16_t transmitter_getFrequencyNumber() {
 
 // Standard tick function.
 void transmitter_tick() {
-    if (debugPrint) debugStatePrint();
-    // Perform state transitionsw
+    // Perform state transitions
     switch (currentState) {
         case init_st:
             currentState = waiting_st;
@@ -181,13 +180,15 @@ void transmitter_tick() {
     }
 }
 
+//sets counterlength to a shorter value to decrease operating time
 void transmitter_enableTestMode() {
-    debugPrint = true;
+    //debugPrint = true;
     transmitCounterLength = TRANSMITTER_PULSE_TEST_WIDTH;
 }
 
+//sets counterlength to normal 
 void transmitter_disableTestMode() {
-    debugPrint = false;
+    //debugPrint = false;
     transmitCounterLength = TRANSMITTER_PULSE_WIDTH;
 }
 
@@ -234,7 +235,14 @@ void transmitter_setContinuousMode(bool continuousModeFlag) {
 // spot between 200 ms pulses.
 // Should change frequency in response to the slide switches.
 void transmitter_runNoncontinuousTest() {
-
+    transmitter_init();                           //init the transmitter
+    transmitter_run();                            //starts the transmitter
+    transmitter_setContinuousMode(false);         //sets continuous flag to false  
+    while(!(buttons_read() & BUTTONS_BTN1_MASK)){ //Run until button 1 is pressed
+        while (transmitter_running()) {                       // Keep ticking until it is done.
+            transmitter_tick();                               // tick.
+        }
+    }
 }
 
 // Tests the transmitter in continuous mode.
@@ -246,5 +254,12 @@ void transmitter_runNoncontinuousTest() {
 // in response to changes to the changes in the slide switches.
 // Test runs until BTN1 is pressed.
 void transmitter_runContinuousTest() {
-
+    transmitter_init();                             //init the transmitter
+    transmitter_run();                              //starts the transmitter
+    transmitter_setContinuousMode(true);            //sets continuous flag to true
+    while(1){                                       //runs forever until stopped
+        while (transmitter_running()) {                       // Keep ticking until it is done.
+            transmitter_tick();                               // tick.
+        }
+    }
 }

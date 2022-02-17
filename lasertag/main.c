@@ -48,9 +48,10 @@ int main() {
 #ifdef RUNNING_MODE_TESTS
   // queue_runTest(); // M1
   // filterTest_runTest(); // M3 T1
-  transmitter_runTest(); // M3 T2
+  // transmitter_runTest(); // M3 T2
   // detector_runTest(); // M3 T3
   // sound_runTest(); // M4
+   hitLedTimer_runTest(); // M3 T2
 #endif
 
 #ifdef RUNNING_MODE_M3_T2
