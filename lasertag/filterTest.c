@@ -857,7 +857,7 @@ double filterTest_computeGoldenPowerValue(queue_t *q) {
 //    for all 10 output queues.
 // Tests both forced and incremental modes.
 #define TEST_PASS_EPSILON 10E-11 // Should be in this range.
-#define TEST_INCREMENTAL_LOOP_COUNT \
+#define TEST_INCREMENTAL_LOOP_COUNT                                            \
   3000 // Loop over the incremental test this many times.
 #define OUTPUT_QUEUE_SIZE 2000
 bool filterTest_runPowerTest() {

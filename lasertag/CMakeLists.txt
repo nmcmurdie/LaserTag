@@ -4,9 +4,9 @@ queue_test.c
 filter.c
 filterTest.c
 histogram.c
-# isr.c
+isr.c
 # trigger.c
-# transmitter.c
+transmitter.c
 # hitLedTimer.c
 # lockoutTimer.c
 # detector.c

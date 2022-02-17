@@ -42,14 +42,13 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 #include "switches.h"
 #include "transmitter.h"
 #include "trigger.h"
-#include "detector.h"
 
 int main() {
 
 #ifdef RUNNING_MODE_TESTS
   // queue_runTest(); // M1
-  filterTest_runTest(); // M3 T1
-  // transmitter_runTest(); // M3 T2
+  // filterTest_runTest(); // M3 T1
+  transmitter_runTest(); // M3 T2
   // detector_runTest(); // M3 T3
   // sound_runTest(); // M4
 #endif
@@ -69,14 +68,16 @@ int main() {
   trigger_runTest();
   hitLedTimer_runTest();
   lockoutTimer_runTest();
-  while (1) ; // Forever-while loop. Modify as you see fit.
+  while (1)
+    ; // Forever-while loop. Modify as you see fit.
 #endif
 
 #ifdef RUNNING_MODE_M3_T3
   // The program comes up in continuous mode.
   // Hold BTN2 while the program starts to come up in shooter mode.
   buttons_init(); // Init the buttons.
-  if (buttons_read() & BUTTONS_BTN2_MASK) { // Read the buttons to see if BTN2 is depressed.
+  if (buttons_read() &
+      BUTTONS_BTN2_MASK) { // Read the buttons to see if BTN2 is depressed.
     printf("Starting shooter mode\n");
     runningModes_shooter(); // Run shooter mode if BTN2 is depressed.
   } else {
