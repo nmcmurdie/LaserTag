@@ -239,11 +239,14 @@ void transmitter_runNoncontinuousTest() {
 
     while(!(buttons_read() & BUTTONS_BTN1_MASK)) {
         // Run until button 1 is pressed
-        uint16_t frequency = switches_read() % FILTER_FREQUENCY_COUNT;
-        transmitter_setFrequencyNumber(frequency);
-        transmitter_run();
-        while (transmitter_running()) utils_msDelay(SMALL_DELAY);
-        utils_msDelay(LARGE_DELAY);
+        if(buttons_read()&BUTTONS_BTN0_MASK)
+        {
+            uint16_t frequency = switches_read() % FILTER_FREQUENCY_COUNT;
+            transmitter_setFrequencyNumber(frequency);
+            transmitter_run();
+            while (transmitter_running()) utils_msDelay(SMALL_DELAY);
+            utils_msDelay(LARGE_DELAY);
+        }
     }
 }
 
