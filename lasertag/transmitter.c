@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "stdio.h"
 
-//#define TRANSMITTER_PULSE_WIDTH 2000
+#define TRANSMITTER_PULSE_WIDTH 2000
 #define TRANSMITTER_PULSE_TEST_WIDTH 200
 #define INVALID_STATE "INVALID STATE\n"
 #define TRANSMITTER_HIGH_VALUE 1
@@ -156,7 +156,7 @@ void transmitter_tick() {
             }
             break;
         default:
-            printf(INVALID_STATE);
+            DPRINTF(INVALID_STATE);
             break;
     }
 
@@ -175,26 +175,24 @@ void transmitter_tick() {
             transmitTimer++;
             break;
         default:
-            printf(INVALID_STATE);
+            DPRINTF(INVALID_STATE);
             break;
     }
 }
 
 //sets counterlength to a shorter value to decrease operating time
 void transmitter_enableTestMode() {
-    //debugPrint = true;
     transmitCounterLength = TRANSMITTER_PULSE_TEST_WIDTH;
 }
 
 //sets counterlength to normal 
 void transmitter_disableTestMode() {
-    //debugPrint = false;
     transmitCounterLength = TRANSMITTER_PULSE_WIDTH;
 }
 
 // Tests the transmitter.
 void transmitter_runTest() {
-    printf("starting transmitter_runTest()\n");
+    DPRINTF("starting transmitter_runTest()\n");
     mio_init(false);
     buttons_init();                                         // Using buttons
     switches_init();                                        // and switches.
@@ -208,11 +206,11 @@ void transmitter_runTest() {
         transmitter_tick();                                 // tick.
         utils_msDelay(TRANSMITTER_TEST_TICK_PERIOD_IN_MS);  // short delay between ticks.
         }
-        printf("\ncompleted one test period.\n");
+        DPRINTF("\ncompleted one test period.\n");
     }
     transmitter_disableTestMode();
     do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
-    printf("exiting transmitter_runTest()\n");
+    DPRINTF("exiting transmitter_runTest()\n");
 }
 
 // Runs the transmitter continuously.
