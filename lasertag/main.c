@@ -8,10 +8,10 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 */
 
 // Uncomment to run tests, various Milestones
-#define RUNNING_MODE_TESTS
+// #define RUNNING_MODE_TESTS
 
 // Uncomment to run Milestone 3, Task 2
-// #define RUNNING_MODE_M3_T2
+#define RUNNING_MODE_M3_T2
 
 // Uncomment to run continuous/shooter mode, Milestone 3, Task 3
 // #define RUNNING_MODE_M3_T3
@@ -51,7 +51,6 @@ int main() {
   // transmitter_runTest(); // M3 T2
   // detector_runTest(); // M3 T3
   // sound_runTest(); // M4
-   hitLedTimer_runTest(); // M3 T2
 #endif
 
 #ifdef RUNNING_MODE_M3_T2
@@ -64,10 +63,10 @@ int main() {
   interrupts_startArmPrivateTimer();  // start the main timer.
   interrupts_enableArmInts(); // now the ARM processor can see interrupts.
 
-  transmitter_runNoncontinuousTest();
-  transmitter_runContinuousTest();
-  trigger_runTest();
-  hitLedTimer_runTest();
+  // transmitter_runNoncontinuousTest();
+  // transmitter_runContinuousTest();
+  // trigger_runTest();
+  // hitLedTimer_runTest();
   lockoutTimer_runTest();
   while (1)
     ; // Forever-while loop. Modify as you see fit.

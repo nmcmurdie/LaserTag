@@ -2,6 +2,7 @@
 #include "transmitter.h"
 #include "lockoutTimer.h"
 #include "hitLedTimer.h"
+#include "stdio.h"
 
 // Performs inits for anything in isr.c
 void isr_init() {
