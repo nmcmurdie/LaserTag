@@ -19,6 +19,12 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 // frequency as set by transmitter_setFrequencyNumber(). The step counts for the
 // frequencies are provided in filter.h
 
+//sets counterlength to a shorter value to decrease operating time
+void transmitter_enableTestMode();
+
+//sets counterlength to normal 
+void transmitter_disableTestMode();
+
 // Standard init function.
 void transmitter_init();
 

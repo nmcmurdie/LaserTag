@@ -5,7 +5,7 @@ filter.c
 filterTest.c
 histogram.c
 isr.c
-# trigger.c
+trigger.c
 transmitter.c
 hitLedTimer.c
 lockoutTimer.c

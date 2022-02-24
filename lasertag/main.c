@@ -63,11 +63,11 @@ int main() {
   interrupts_startArmPrivateTimer();  // start the main timer.
   interrupts_enableArmInts(); // now the ARM processor can see interrupts.
 
-  // transmitter_runNoncontinuousTest();
+  transmitter_runNoncontinuousTest();
   // transmitter_runContinuousTest();
   // trigger_runTest();
   // hitLedTimer_runTest();
-  lockoutTimer_runTest();
+  // lockoutTimer_runTest();
   while (1)
     ; // Forever-while loop. Modify as you see fit.
 #endif

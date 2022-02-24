@@ -14,6 +14,8 @@
 #define HIGH 1
 #define LOW 0
 #define LED_MASK_OFF 0x0
+#define SMALL_DELAY 1
+#define LARGE_DELAY 300
 
 #define DEBUG
 #if defined(DEBUG)
@@ -131,7 +133,7 @@ void hitLedTimer_runTest() {
     while (1) {
         // Run timer loop
         hitLedTimer_start();
-        while (hitLedTimer_running()) utils_msDelay(1);
-        utils_msDelay(300);
+        while (hitLedTimer_running()) utils_msDelay(SMALL_DELAY);
+        utils_msDelay(LARGE_DELAY);
     }
 }
