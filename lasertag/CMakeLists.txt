@@ -9,7 +9,7 @@ trigger.c
 transmitter.c
 hitLedTimer.c
 lockoutTimer.c
-# detector.c
+detector.c
 # sound.c
 # timer_ps.c
 # runningModes.c
