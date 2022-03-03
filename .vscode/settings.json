@@ -8,6 +8,8 @@
     "C_Cpp.clang_format_fallbackStyle": "LLVM",
     "files.associations": {
         "intervaltimer.h": "c",
-        "lockouttimer.h": "c"
+        "lockouttimer.h": "c",
+        "isr.h": "c",
+        "detector.h": "c"
     }
 }

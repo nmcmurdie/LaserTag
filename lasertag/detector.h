@@ -16,6 +16,8 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 #include <stdbool.h>
 #include <stdint.h>
 
+// https://github.com/byu-cpe/ecen330_student/blob/master/lasertag/detector.h
+
 // Student testing functions will return these status values.
 typedef uint32_t detector_status_t;   // Used to return status from tests.
 #define DETECTOR_STATUS_OK 0          // Everything is A-OK.

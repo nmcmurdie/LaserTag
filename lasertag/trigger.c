@@ -159,7 +159,7 @@ void trigger_tick() {
     // Release is debounced
     if (debounceTimer >= DEBOUNCE_TIMER_MAX_VALUE) {
       DPCHAR(UP_CHAR);
-      DPCHAR(newline);
+      DPCHAR(NEWLINE);
       currentState = waiting_st;
     }
     break;
