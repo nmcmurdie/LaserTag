@@ -23,6 +23,7 @@ volatile static adcBuffer_t adcBuffer;
 
 // Init ADC Buffer
 void adcBufferInit() {
+  // Initialize each element to 0
   for (uint32_t i = 0; i < adcBuffer.elementCount; i++) {
     adcBuffer.data[i] = 0;
   }
