@@ -50,7 +50,7 @@ static bool isContinuous = false, debugPrint = false;
 // This is a debug state print routine. It will print the names of the states
 // each time tick() is called. It only prints states if they are different than
 // the previous state.
-void debugStatePrint() {
+void debugStatePrintTransmitter() {
   static enum transmitter_st_t previousState;
   static bool firstPass = true;
   // Only print the message if:

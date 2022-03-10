@@ -94,7 +94,7 @@ bool triggerPressed() {
 void trigger_init() {
   mio_setPinAsInput(TRIGGER_GUN_TRIGGER_MIO_PIN);
   debounceTimer = 0;
-  shotsRemaining = 0;
+  shotsRemaining = 1000;
 
   // If the trigger is pressed when trigger_init() is called, assume that the
   // gun is not connected and ignore it.

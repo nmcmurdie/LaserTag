@@ -47,6 +47,7 @@ void isr_function() {
   lockoutTimer_tick();
   hitLedTimer_tick();
   trigger_tick();
+  isr_addDataToAdcBuffer(interrupts_getAdcData());
 }
 
 // This adds data to the ADC queue. Data are removed from this queue and used by

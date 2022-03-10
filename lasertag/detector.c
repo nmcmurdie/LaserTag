@@ -9,7 +9,8 @@
 #define MAX_ADCVALUE 4095
 #define ADC_RANGE 2 
 #define NO_HIT -1
-#define MEDIAN_INDEX 5
+#define MEDIAN_INDEX 4
+#define FUDGE_TEST_ONE 5
 
 static detector_hitCount_t hitCounts[FILTER_FREQUENCY_COUNT];
 static bool ignoredFreq[FILTER_FREQUENCY_COUNT];
@@ -20,12 +21,13 @@ static int16_t hitFrequency = NO_HIT;
 static bool ignoreHits = false;
 static bool hitDetected = false;
 
-static double testArray[FILTER_FREQUENCY_COUNT] = { 5,6,2,1,8,7,4,9,3,0 };
-
+static double testArrayOne[FILTER_FREQUENCY_COUNT] = { 25,20,40,10,15,30,35,15,150,80 };
+static double testArrayTwo[FILTER_FREQUENCY_COUNT] = { 150,70,45,30,25,30,10,50,55,65 };
 // Always have to init things.
 // bool array is indexed by frequency number, array location set for true to
 // ignore, false otherwise. This way you can ignore multiple frequencies.
 void detector_init(bool ignoredFrequencies[]) {
+    filter_init();
     // Clear hit counts and copy over ignored frequencies
     for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
         hitCounts[i] = 0;
@@ -178,17 +180,35 @@ double detector_getScaledAdcValue(isr_AdcValue_t adcValue) {
 
 // Students implement this as part of Milestone 3, Task 3.
 void detector_runTest() {
+    detector_setFudgeFactorIndex(FUDGE_TEST_ONE);
     for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
-        computedPower[i] = testArray[i];
+        computedPower[i] = testArrayOne[i];
         filterIndexArray[i] = i;
-        printf("Starting power: %f\n", computedPower[i]);
     }
     
     detectHit();
-    for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++){
-        printf("Sorted Power: %f\n", computedPower[i]);
+    if(hitFrequency != NO_HIT){
+        hitDetected=true;
     }
+    if(detector_hitDetected()){
+        printf("HIT at Freq: %d\n",hitFrequency);
+    }
+    else {
+        printf("NO HIT\n");
+    }
+    hitDetected=false;
     for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
-        printf("Index Ranked: %d\n", filterIndexArray[i]);
+        computedPower[i] = testArrayTwo[i];
+        filterIndexArray[i] = i;
+    }
+    detectHit();
+    if(hitFrequency != NO_HIT){
+        hitDetected=true;
+    }
+    if(detector_hitDetected()){
+        printf("HIT at Freq: %d\n",hitFrequency);
+    }
+    else {
+        printf("NO HIT\n");
     }
 }
