@@ -115,7 +115,7 @@ void detector(bool interruptsCurrentlyEnabled) {
                 detectHit();
 
                 // Frequency is valid, start timers and register hit
-                if (freq != NO_HIT && !ignoreHits) {
+                if (hitFrequency != NO_HIT && !ignoreHits) {
                     lockoutTimer_start();
                     hitLedTimer_start();
                     hitCounts[hitFrequency]++;
