@@ -4,6 +4,7 @@
 #include "transmitter.h"
 #include "trigger.h"
 #include "interrupts.h"
+#include "stdio.h"
 
 #define ADC_BUFFER_SIZE 100000
 #define ADC_BUFFER_EMPTY 0
@@ -48,6 +49,7 @@ void isr_function() {
   hitLedTimer_tick();
   trigger_tick();
   isr_addDataToAdcBuffer(interrupts_getAdcData());
+  //printf("ADC VALUE: %d\n",interrupts_getAdcData());
 }
 
 // This adds data to the ADC queue. Data are removed from this queue and used by
@@ -58,6 +60,9 @@ void isr_addDataToAdcBuffer(uint32_t adcData) {
 
   // Only increment element count if buffer isn't full
   if (adcBuffer.elementCount != ADC_BUFFER_SIZE) adcBuffer.elementCount++;
+  else{
+    adcBuffer.indexOut++;
+  }
 }
 
 // This removes a value from the ADC buffer.

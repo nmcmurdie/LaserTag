@@ -1,4 +1,5 @@
 #include "filter.h"
+#include <stdio.h>
 
 #define FILTER_IIR_COUNT 10
 #define IIR_A_COEFFICIENT_COUNT 10
@@ -209,12 +210,26 @@ void initYQueue() {
   }
 }
 
+// Initialize odlestValues
+void initValues() {
+  //queue_init(&yQueue, Y_QUEUE_SIZE, Y_QUEUE_NAME);
+
+  for (uint32_t j = 0; j < FILTER_FREQUENCY_COUNT; j++) {
+    // Push all zeros to each filter
+    //queue_overwritePush(&yQueue, QUEUE_INIT_VAL);
+    oldestValue[j]=0;
+    prevPower[j]=0;
+    currentPowerValue[j]=0;
+    
+  }
+}
 // Must call this prior to using any filter functions.
 void filter_init() {
   initZQueues();
   initOutputQueues();
   initXQueue();
   initYQueue();
+  initValues();
 }
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
@@ -267,7 +282,7 @@ double filter_iirFilter(uint16_t filterNumber) {
   }
 
   queue_overwritePush(&(zQueue[filterNumber]), output);
-
+  queue_overwritePush(&(outputQueue[filterNumber]), output);
   return output;
 }
 
@@ -300,15 +315,19 @@ double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch,
     // squared
     double newestValue = queue_readElementAt(&(outputQueue[filterNumber]),
                                              OUTPUT_QUEUE_SIZE - 1);
+                                             
     power = prevPower[filterNumber] -
             (oldestValue[filterNumber] * oldestValue[filterNumber]) +
             (newestValue * newestValue);
+            
   }
 
   prevPower[filterNumber] = power;
   oldestValue[filterNumber] =
       queue_readElementAt(&(outputQueue[filterNumber]), QUEUE_OLDEST_ELEM);
+      //printf("power: %8.4e\n",oldestValue[filterNumber]);
   currentPowerValue[filterNumber] = power;
+  //printf("POWER VALUE: %f\n",power);
   return power;
 }
 
@@ -327,6 +346,7 @@ void filter_getCurrentPowerValues(double powerValues[]) {
   for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
     // Copy values from our power value array into the provided array
     powerValues[i] = currentPowerValue[i];
+    //printf("POWER VALUE: %f\n",powerValues[i]);
   }
 }
 
