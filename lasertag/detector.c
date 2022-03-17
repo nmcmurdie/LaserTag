@@ -7,19 +7,21 @@
 #include "hitLedTimer.h"
 
 #define MAX_ADCVALUE 4095
-#define ADC_RANGE 2 
+#define ADC_RANGE 2
 #define NO_HIT -1
 #define MEDIAN_INDEX 4
 #define FUDGE_TEST_ONE 5
+#define DEFAULT_FUDGE_FACTOR 900
 
 static detector_hitCount_t hitCounts[FILTER_FREQUENCY_COUNT];
 static bool ignoredFreq[FILTER_FREQUENCY_COUNT];
 static double computedPower[FILTER_FREQUENCY_COUNT];
 static int16_t filterIndexArray[FILTER_FREQUENCY_COUNT];
-static uint32_t fudgeFactor = 1000;
+static uint32_t fudgeFactor = DEFAULT_FUDGE_FACTOR;
 static int16_t hitFrequency = NO_HIT;
 static bool ignoreHits = false;
 static bool hitDetected = false;
+static bool firstPowerCompute = true;
 
 static double testArrayOne[FILTER_FREQUENCY_COUNT] = { 25,20,40,10,15,30,35,15,150,80 };
 static double testArrayTwo[FILTER_FREQUENCY_COUNT] = { 150,70,45,30,25,30,10,50,55,65 };
@@ -60,12 +62,17 @@ void sortPower() {
 // Detect which frequency hit the player
 void detectHit() {
     sortPower();
+    // for (uint16_t i = 0; i < 10; i++) {
+    //     // printf("Sorted power: %8.4e\n", computedPower[i]);
+    // }
     double threshold = computedPower[MEDIAN_INDEX] * fudgeFactor;
     int16_t hitFreq = computedPower[FILTER_FREQUENCY_COUNT - 1] > threshold
             ? filterIndexArray[FILTER_FREQUENCY_COUNT - 1]
             : NO_HIT;
-
+    // printf("Threshold = %8.4e\n", threshold);
+    // printf("HitFreq = %d\n", hitFreq);
     hitFrequency = ignoredFreq[hitFreq] ? NO_HIT : hitFreq;
+    // printf("Final hitFrequency = %d\n", hitFrequency);
 }
 
 // Runs the entire detector: decimating fir-filter, iir-filters,
@@ -81,7 +88,7 @@ void detectHit() {
 // Assumption: draining the ADC buffer occurs faster than it can fill.
 void detector(bool interruptsCurrentlyEnabled) {
     uint16_t elementCount = isr_adcBufferElementCount();
-    uint16_t filterCallCount = 0;
+    static uint16_t filterCallCount = 0;
 
     // repeats steps for elementCount size
     for (uint16_t i = 0; i < elementCount; i++) {
@@ -101,17 +108,23 @@ void detector(bool interruptsCurrentlyEnabled) {
         double scaledAdcValue = detector_getScaledAdcValue(rawAdcValue);
         filter_addNewInput(scaledAdcValue);
         filterCallCount++;
+        // printf("New ADC Value: %d\n", rawAdcValue);
+        // printf("New Scaled ADC Value: %8.4e\n", scaledAdcValue);
 
         // filter addNewInput count has been called 10 times
-        if (filterCallCount == FILTER_FREQUENCY_COUNT) {
+        if (filterCallCount >= FILTER_FREQUENCY_COUNT) {
             filter_firFilter();
 
             //for each filter run the filters and power computation
             for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++){
                 filter_iirFilter(i);
-                computedPower[i] = filter_computePower(i, false, false);
+                filter_computePower(i, firstPowerCompute, false);
+
+                // printf("Power: %8.4e\n", computedPower[i]);
                 filterIndexArray[i] = i;
             }
+            firstPowerCompute = false;
+            filter_getCurrentPowerValues(computedPower);
             // If not in lockout, detect if a hit has taken place
             if (!lockoutTimer_running()){
                 detectHit();
@@ -122,6 +135,7 @@ void detector(bool interruptsCurrentlyEnabled) {
                     hitLedTimer_start();
                     hitCounts[hitFrequency]++;
                     hitDetected = true;
+                    // printf("Hit counts for frequency: %d\n", hitCounts[hitFrequency]);
                 }
             }
 
@@ -171,7 +185,7 @@ void detector_setFudgeFactorIndex(uint32_t factor) {
 
 // Encapsulate ADC scaling for easier testing.
 double detector_getScaledAdcValue(isr_AdcValue_t adcValue) {
-    return (((double)(adcValue / MAX_ADCVALUE) * ADC_RANGE) - 1);
+    return ((((double) adcValue / MAX_ADCVALUE) * ADC_RANGE) - 1);
 }
 
 /*******************************************************
@@ -180,6 +194,8 @@ double detector_getScaledAdcValue(isr_AdcValue_t adcValue) {
 
 // Students implement this as part of Milestone 3, Task 3.
 void detector_runTest() {
+    bool ignoreArray[FILTER_FREQUENCY_COUNT] = {false, false, false, false, false, false, false, false, false, false};
+    detector_init(ignoreArray);
     detector_setFudgeFactorIndex(FUDGE_TEST_ONE);
     for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
         computedPower[i] = testArrayOne[i];

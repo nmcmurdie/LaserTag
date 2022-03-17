@@ -9,7 +9,7 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 
 #include "interrupts.h"
 #include "runningModes.h"
-
+#include "hitLedTimer.h"
 #include <stdio.h>
 
 /*

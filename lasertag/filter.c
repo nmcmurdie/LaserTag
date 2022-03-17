@@ -325,9 +325,7 @@ double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch,
   prevPower[filterNumber] = power;
   oldestValue[filterNumber] =
       queue_readElementAt(&(outputQueue[filterNumber]), QUEUE_OLDEST_ELEM);
-      //printf("power: %8.4e\n",oldestValue[filterNumber]);
   currentPowerValue[filterNumber] = power;
-  //printf("POWER VALUE: %f\n",power);
   return power;
 }
 

@@ -6,7 +6,7 @@
 #include "interrupts.h"
 #include "stdio.h"
 
-#define ADC_BUFFER_SIZE 100000
+#define ADC_BUFFER_SIZE 10000
 #define ADC_BUFFER_EMPTY 0
 
 // This implements a dedicated circular buffer for storing values
@@ -24,10 +24,6 @@ volatile static adcBuffer_t adcBuffer;
 
 // Init ADC Buffer
 void adcBufferInit() {
-  // Initialize each element to 0
-  for (uint32_t i = 0; i < adcBuffer.elementCount; i++) {
-    adcBuffer.data[i] = 0;
-  }
   adcBuffer.indexIn = 0;
   adcBuffer.indexOut = 0;
   adcBuffer.elementCount = 0;
@@ -44,11 +40,11 @@ void isr_init() {
 
 // This function is invoked by the timer interrupt at 100 kHz.
 void isr_function() {
+  isr_addDataToAdcBuffer(interrupts_getAdcData());
   transmitter_tick();
   lockoutTimer_tick();
   hitLedTimer_tick();
   trigger_tick();
-  isr_addDataToAdcBuffer(interrupts_getAdcData());
   //printf("ADC VALUE: %d\n",interrupts_getAdcData());
 }
 
@@ -59,9 +55,8 @@ void isr_addDataToAdcBuffer(uint32_t adcData) {
   adcBuffer.indexIn = (adcBuffer.indexIn + 1) % ADC_BUFFER_SIZE;
 
   // Only increment element count if buffer isn't full
-  if (adcBuffer.elementCount != ADC_BUFFER_SIZE) adcBuffer.elementCount++;
-  else{
-    adcBuffer.indexOut++;
+  if (adcBuffer.elementCount != ADC_BUFFER_SIZE) {
+    adcBuffer.elementCount++;
   }
 }
 

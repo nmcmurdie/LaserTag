@@ -20,7 +20,7 @@
 #define UP_CHAR 'U'
 #define NEWLINE '\n'
 
-#define DEBUG
+// #define DEBUG
 #if defined(DEBUG)
 #include "xil_printf.h"
 #include <stdio.h>
