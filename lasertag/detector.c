@@ -41,6 +41,8 @@ void detector_init(bool ignoredFrequencies[]) {
 void sortPower() {
     double key;
     int32_t indexKey, j;
+
+    //iterate through each element
     for (uint16_t i = 1; i < FILTER_FREQUENCY_COUNT; i++) {
         key = computedPower[i];
         indexKey = filterIndexArray[i];
@@ -62,17 +64,12 @@ void sortPower() {
 // Detect which frequency hit the player
 void detectHit() {
     sortPower();
-    // for (uint16_t i = 0; i < 10; i++) {
-    //     // printf("Sorted power: %8.4e\n", computedPower[i]);
-    // }
     double threshold = computedPower[MEDIAN_INDEX] * fudgeFactor;
     int16_t hitFreq = computedPower[FILTER_FREQUENCY_COUNT - 1] > threshold
             ? filterIndexArray[FILTER_FREQUENCY_COUNT - 1]
             : NO_HIT;
-    // printf("Threshold = %8.4e\n", threshold);
-    // printf("HitFreq = %d\n", hitFreq);
+
     hitFrequency = ignoredFreq[hitFreq] ? NO_HIT : hitFreq;
-    // printf("Final hitFrequency = %d\n", hitFrequency);
 }
 
 // Runs the entire detector: decimating fir-filter, iir-filters,
@@ -108,8 +105,6 @@ void detector(bool interruptsCurrentlyEnabled) {
         double scaledAdcValue = detector_getScaledAdcValue(rawAdcValue);
         filter_addNewInput(scaledAdcValue);
         filterCallCount++;
-        // printf("New ADC Value: %d\n", rawAdcValue);
-        // printf("New Scaled ADC Value: %8.4e\n", scaledAdcValue);
 
         // filter addNewInput count has been called 10 times
         if (filterCallCount >= FILTER_FREQUENCY_COUNT) {
@@ -119,12 +114,11 @@ void detector(bool interruptsCurrentlyEnabled) {
             for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++){
                 filter_iirFilter(i);
                 filter_computePower(i, firstPowerCompute, false);
-
-                // printf("Power: %8.4e\n", computedPower[i]);
                 filterIndexArray[i] = i;
             }
             firstPowerCompute = false;
             filter_getCurrentPowerValues(computedPower);
+
             // If not in lockout, detect if a hit has taken place
             if (!lockoutTimer_running()){
                 detectHit();
@@ -135,7 +129,6 @@ void detector(bool interruptsCurrentlyEnabled) {
                     hitLedTimer_start();
                     hitCounts[hitFrequency]++;
                     hitDetected = true;
-                    // printf("Hit counts for frequency: %d\n", hitCounts[hitFrequency]);
                 }
             }
 
@@ -197,15 +190,23 @@ void detector_runTest() {
     bool ignoreArray[FILTER_FREQUENCY_COUNT] = {false, false, false, false, false, false, false, false, false, false};
     detector_init(ignoreArray);
     detector_setFudgeFactorIndex(FUDGE_TEST_ONE);
+
+    //fills power array with test data
+    //fills index array
     for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
         computedPower[i] = testArrayOne[i];
         filterIndexArray[i] = i;
     }
     
     detectHit();
+
+    //Sets hit detected flag to high if hit
     if(hitFrequency != NO_HIT){
         hitDetected=true;
     }
+
+    //if hit detected flag is high, print out frequency
+    //otherwise print out no hit
     if(detector_hitDetected()){
         printf("HIT at Freq: %d\n",hitFrequency);
     }
@@ -213,14 +214,21 @@ void detector_runTest() {
         printf("NO HIT\n");
     }
     hitDetected=false;
+
+    //fills power array with test data 2
+    //fills index array
     for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
         computedPower[i] = testArrayTwo[i];
         filterIndexArray[i] = i;
     }
     detectHit();
+
+    //Sets hit detected flag to high if hit
     if(hitFrequency != NO_HIT){
         hitDetected=true;
     }
+    //if hit detected flag is high, print out frequency
+    //otherwise print out no hit
     if(detector_hitDetected()){
         printf("HIT at Freq: %d\n",hitFrequency);
     }

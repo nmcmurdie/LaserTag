@@ -212,11 +212,10 @@ void initYQueue() {
 
 // Initialize odlestValues
 void initValues() {
-  //queue_init(&yQueue, Y_QUEUE_SIZE, Y_QUEUE_NAME);
+ 
 
   for (uint32_t j = 0; j < FILTER_FREQUENCY_COUNT; j++) {
     // Push all zeros to each filter
-    //queue_overwritePush(&yQueue, QUEUE_INIT_VAL);
     oldestValue[j]=0;
     prevPower[j]=0;
     currentPowerValue[j]=0;
