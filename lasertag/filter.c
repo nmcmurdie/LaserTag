@@ -170,8 +170,8 @@ void initZQueues() {
     // Init each IIR filter
     queue_init(&(zQueue[i]), Z_QUEUE_SIZE, Z_QUEUE_NAME);
 
+    // Push all zeros to each filter
     for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++) {
-      // Push all zeros to each filter
       queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VAL);
     }
   }
@@ -183,8 +183,8 @@ void initOutputQueues() {
     // Init each IIR filter
     queue_init(&(outputQueue[i]), OUTPUT_QUEUE_SIZE, OUTPUT_QUEUE_NAME);
 
+    // Push all zeros to each filter
     for (uint32_t j = 0; j < OUTPUT_QUEUE_SIZE; j++) {
-      // Push all zeros to each filter
       queue_overwritePush(&(outputQueue[i]), QUEUE_INIT_VAL);
     }
   }
@@ -194,8 +194,8 @@ void initOutputQueues() {
 void initXQueue() {
   queue_init(&xQueue, X_QUEUE_SIZE, X_QUEUE_NAME);
 
+  // Push all zeros to each filter
   for (uint32_t j = 0; j < X_QUEUE_SIZE; j++) {
-    // Push all zeros to each filter
     queue_overwritePush(&xQueue, QUEUE_INIT_VAL);
   }
 }
@@ -204,22 +204,19 @@ void initXQueue() {
 void initYQueue() {
   queue_init(&yQueue, Y_QUEUE_SIZE, Y_QUEUE_NAME);
 
+  // Push all zeros to each filter
   for (uint32_t j = 0; j < Y_QUEUE_SIZE; j++) {
-    // Push all zeros to each filter
     queue_overwritePush(&yQueue, QUEUE_INIT_VAL);
   }
 }
 
 // Initialize odlestValues
 void initValues() {
- 
-
+  // Push all zeros to each filter
   for (uint32_t j = 0; j < FILTER_FREQUENCY_COUNT; j++) {
-    // Push all zeros to each filter
-    oldestValue[j]=0;
-    prevPower[j]=0;
-    currentPowerValue[j]=0;
-    
+    oldestValue[j] = 0;
+    prevPower[j] = 0;
+    currentPowerValue[j] = 0;
   }
 }
 // Must call this prior to using any filter functions.
@@ -241,8 +238,8 @@ void filter_addNewInput(double x) { queue_overwritePush(&xQueue, x); }
 void filter_fillQueue(queue_t *q, double fillValue) {
   queue_size_t size = queue_size(q);
 
+  // Overwrite contents of queue with the fill value
   for (uint32_t i = 0; i < size; i++) {
-    // Overwrite contents of queue with the fill value
     queue_overwritePush(q, fillValue);
   }
 }
@@ -252,8 +249,8 @@ void filter_fillQueue(queue_t *q, double fillValue) {
 double filter_firFilter() {
   double output = 0.0;
 
+  // Process the queue using the FIR filter coefficients
   for (uint32_t i = 0; i < X_QUEUE_SIZE; i++) {
-    // Process the queue using the FIR filter coefficients
     output +=
         FIRCoefficients[i] * queue_readElementAt(&xQueue, X_QUEUE_SIZE - 1 - i);
   }
@@ -267,14 +264,14 @@ double filter_firFilter() {
 double filter_iirFilter(uint16_t filterNumber) {
   double output = 0.0;
 
+  // Process the queue using the IIR B filter coefficients
   for (uint32_t i = 0; i < IIR_B_COEFFICIENT_COUNT; i++) {
-    // Process the queue using the IIR B filter coefficients
     output += iirBCoefficientConstants[filterNumber][i] *
               queue_readElementAt(&yQueue, IIR_B_COEFFICIENT_COUNT - 1 - i);
   }
 
+  // Process the queue using the IIR A filter coefficients
   for (uint32_t i = 0; i < IIR_A_COEFFICIENT_COUNT; i++) {
-    // Process the queue using the IIR A filter coefficients
     output -= iirACoefficientConstants[filterNumber][i] *
               queue_readElementAt(&(zQueue[filterNumber]),
                                   IIR_A_COEFFICIENT_COUNT - 1 - i);
@@ -302,10 +299,10 @@ double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch,
                            bool debugPrint) {
   double power = 0.0;
 
+  // Compute the power from output queues from scratch
   if (forceComputeFromScratch) {
-    // Compute the power from output queues from scratch
+    // Sum each element in the output queue squared
     for (uint32_t i = 0; i < OUTPUT_QUEUE_SIZE; i++) {
-      // Sum each element in the output queue squared
       double queueElem = queue_readElementAt(&(outputQueue[filterNumber]), i);
       power += queueElem * queueElem;
     }
@@ -340,8 +337,8 @@ double filter_getCurrentPowerValue(uint16_t filterNumber) {
 // detector. Remember that when you pass an array into a C function, changes to
 // the array within that function are reflected in the returned array.
 void filter_getCurrentPowerValues(double powerValues[]) {
+  // Copy values from our power value array into the provided array
   for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
-    // Copy values from our power value array into the provided array
     powerValues[i] = currentPowerValue[i];
     //printf("POWER VALUE: %f\n",powerValues[i]);
   }
@@ -354,17 +351,17 @@ void filter_getCurrentPowerValues(double powerValues[]) {
 void filter_getNormalizedPowerValues(double normalizedArray[],
                                      uint16_t *indexOfMaxValue) {
   double maxValue = 0.0;
+  // Iterate over each power value
   for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
-    // Iterate over each power value
+    // If the power is at its max, keep the value and index
     if (currentPowerValue[i] > maxValue) {
-      // If the power is at its max, keep the value and index
       *indexOfMaxValue = i;
       maxValue = currentPowerValue[i];
     }
   }
 
+  // Copy over power values and normalize
   for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
-    // Copy over power values and normalize
     normalizedArray[i] = currentPowerValue[i] / maxValue;
   }
 }

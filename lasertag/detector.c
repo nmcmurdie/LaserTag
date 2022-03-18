@@ -42,7 +42,7 @@ void sortPower() {
     double key;
     int32_t indexKey, j;
 
-    //iterate through each element
+    // Iterate through each element
     for (uint16_t i = 1; i < FILTER_FREQUENCY_COUNT; i++) {
         key = computedPower[i];
         indexKey = filterIndexArray[i];
@@ -106,16 +106,17 @@ void detector(bool interruptsCurrentlyEnabled) {
         filter_addNewInput(scaledAdcValue);
         filterCallCount++;
 
-        // filter addNewInput count has been called 10 times
+        // Filter addNewInput count has been called 10 times
         if (filterCallCount >= FILTER_FREQUENCY_COUNT) {
             filter_firFilter();
 
-            //for each filter run the filters and power computation
-            for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++){
+            // For each filter run the filters and power computation
+            for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
                 filter_iirFilter(i);
                 filter_computePower(i, firstPowerCompute, false);
                 filterIndexArray[i] = i;
             }
+
             firstPowerCompute = false;
             filter_getCurrentPowerValues(computedPower);
 
@@ -191,8 +192,8 @@ void detector_runTest() {
     detector_init(ignoreArray);
     detector_setFudgeFactorIndex(FUDGE_TEST_ONE);
 
-    //fills power array with test data
-    //fills index array
+    // fills power array with test data
+    // fills index array
     for (uint16_t i = 0; i < FILTER_FREQUENCY_COUNT; i++) {
         computedPower[i] = testArrayOne[i];
         filterIndexArray[i] = i;
@@ -200,20 +201,20 @@ void detector_runTest() {
     
     detectHit();
 
-    //Sets hit detected flag to high if hit
-    if(hitFrequency != NO_HIT){
-        hitDetected=true;
+    // Sets hit detected flag to high if hit
+    if (hitFrequency != NO_HIT){
+        hitDetected = true;
     }
 
     //if hit detected flag is high, print out frequency
     //otherwise print out no hit
-    if(detector_hitDetected()){
-        printf("HIT at Freq: %d\n",hitFrequency);
+    if (detector_hitDetected()) {
+        printf("HIT at Freq: %d\n", hitFrequency);
     }
     else {
         printf("NO HIT\n");
     }
-    hitDetected=false;
+    hitDetected = false;
 
     //fills power array with test data 2
     //fills index array
@@ -224,13 +225,13 @@ void detector_runTest() {
     detectHit();
 
     //Sets hit detected flag to high if hit
-    if(hitFrequency != NO_HIT){
-        hitDetected=true;
+    if (hitFrequency != NO_HIT) {
+        hitDetected = true;
     }
     //if hit detected flag is high, print out frequency
     //otherwise print out no hit
-    if(detector_hitDetected()){
-        printf("HIT at Freq: %d\n",hitFrequency);
+    if (detector_hitDetected()){
+        printf("HIT at Freq: %d\n", hitFrequency);
     }
     else {
         printf("NO HIT\n");

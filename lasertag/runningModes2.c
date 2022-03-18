@@ -20,6 +20,7 @@ runningModes.c can give you some ideas about how to implement other
 modes here.
 */
 
+// Custom running mode for 2 teams
 void runningModes_twoTeams() {
   uint16_t hitCount = 0;
   runningModes_initAll();
