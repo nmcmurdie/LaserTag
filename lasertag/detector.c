@@ -11,7 +11,7 @@
 #define NO_HIT -1
 #define MEDIAN_INDEX 4
 #define FUDGE_TEST_ONE 5
-#define DEFAULT_FUDGE_FACTOR 900
+#define DEFAULT_FUDGE_FACTOR 20
 
 static detector_hitCount_t hitCounts[FILTER_FREQUENCY_COUNT];
 static bool ignoredFreq[FILTER_FREQUENCY_COUNT];
