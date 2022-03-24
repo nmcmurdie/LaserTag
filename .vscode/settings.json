@@ -10,6 +10,7 @@
         "intervaltimer.h": "c",
         "lockouttimer.h": "c",
         "isr.h": "c",
-        "detector.h": "c"
+        "detector.h": "c",
+        "runningmodes.h": "c"
     }
 }

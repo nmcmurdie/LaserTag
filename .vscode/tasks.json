@@ -18,6 +18,10 @@
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "command": "clear; cmake ..; make -j4; ../run_elf_on_board.py lasertag/lasertag.elf",
             "problemMatcher": [
                 "$gcc"
@@ -30,10 +34,6 @@
                 "cwd": "${workspaceRoot}"
             },
             "command": "rm -r build; mkdir build; cd build; cmake .. -D SDCARD=1; make; make BOOT.bin ELF_PATH=./lasertag/lasertag.elf",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
             "problemMatcher": [
                 "$gcc"
             ]

@@ -173,6 +173,7 @@ void runningModes_printRunTimeStatistics() {
 
 // Group all of the inits together to reduce visual clutter.
 void runningModes_initAll() {
+  printf("Init all\n");
   buttons_init();
   switches_init();
   mio_init(false);

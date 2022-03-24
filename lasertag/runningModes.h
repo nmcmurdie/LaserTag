@@ -68,4 +68,7 @@ uint16_t runningModes_getFrequencySetting();
 // A simple test mode that continuously prints out raw ADC values.
 void runningModes_dumpRawAdcValues();
 
+// Last-man standing game mode
+void runningModes_lastPersonStanding();
+
 #endif /* RUNNINGMODES_H_ */

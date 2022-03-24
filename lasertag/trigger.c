@@ -4,10 +4,12 @@
 #include "mio.h"
 #include "switches.h"
 #include "transmitter.h"
+#include "sound.h"
 
 #define TRIGGER_GUN_TRIGGER_MIO_PIN 10
 #define GUN_TRIGGER_PRESSED 1
 #define DEBOUNCE_TIMER_MAX_VALUE 5000
+#define RELOAD_TIMER_MAX_VALUE 300000
 #define TEST_SHOT_COUNT 1000
 
 #define INVALID_ST_MSG "INVALID STATE\n"
@@ -16,6 +18,7 @@
 #define TRIGGER_ST_MSG "trigger_st\n"
 #define TRIGGER_PRESS_ST_MSG "trigger_press_st\n"
 #define TRIGGER_RELEASE_ST_MSG "trigger_release_st\n"
+#define TRIGGER_RELOAD_ST_MSG "trigger_reload_st\n"
 #define DOWN_CHAR 'D'
 #define UP_CHAR 'U'
 #define NEWLINE '\n'
@@ -41,7 +44,7 @@ enum trigger_st_t {
 static enum trigger_st_t currentState;
 
 static bool ignoreGunInput = false;
-static uint16_t debounceTimer;
+static uint16_t debounceTimer, reloadTimer;
 static trigger_shotsRemaining_t shotsRemaining;
 
 // This is a debug state print routine. It will print the names of the states
@@ -94,7 +97,7 @@ bool triggerPressed() {
 void trigger_init() {
   mio_setPinAsInput(TRIGGER_GUN_TRIGGER_MIO_PIN);
   debounceTimer = 0;
-  shotsRemaining = 1000;
+  shotsRemaining = TEST_SHOT_COUNT;
 
   // If the trigger is pressed when trigger_init() is called, assume that the
   // gun is not connected and ignore it.
@@ -130,10 +133,13 @@ void trigger_tick() {
     currentState = waiting_st;
     break;
   case waiting_st:
-    // Trigger pressed, debounce button
+    // Trigger pressed, debounce button unless no shots remaining
     if (triggerPressed() && shotsRemaining > 0 && !ignoreGunInput) {
       currentState = trigger_st;
       shotsRemaining--;
+    }
+    else if (triggerPressed() && shotsRemaining == 0 && !ignoreGunInput) {
+      sound_playSound(sound_gunClick_e);
     }
     break;
   case trigger_st:
@@ -143,15 +149,22 @@ void trigger_tick() {
       currentState = waiting_st;
     } else if (debounceTimer >= DEBOUNCE_TIMER_MAX_VALUE) {
       currentState = trigger_press_st;
+      reloadTimer = 0;
       DPCHAR(DOWN_CHAR);
       DPCHAR(NEWLINE);
       transmitter_run();
+      sound_playSound(sound_gunFire_e);
     }
     break;
   case trigger_press_st:
-    // Trigger released, begin debouncing
+    // Trigger released, begin debouncing or reload gun
     if (!triggerPressed()) {
       debounceTimer = 0;
+      currentState = trigger_release_st;
+    }
+    else if (reloadTimer >= RELOAD_TIMER_MAX_VALUE) {
+      sound_playSound(sound_gunReload_e);
+      trigger_setRemainingShotCount(LAST_STANDING_AMMO);
       currentState = trigger_release_st;
     }
     break;
@@ -179,6 +192,7 @@ void trigger_tick() {
     debounceTimer++;
     break;
   case trigger_press_st:
+    reloadTimer++;
     break;
   case trigger_release_st:
     debounceTimer++;

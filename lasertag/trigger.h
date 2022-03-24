@@ -11,6 +11,7 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 #define TRIGGER_H_
 
 #include <stdint.h>
+#define LAST_STANDING_AMMO 10
 
 // The trigger state machine debounces both the press and release of gun
 // trigger. Ultimately, it will activate the transmitter when a debounced press

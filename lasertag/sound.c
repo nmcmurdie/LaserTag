@@ -50,7 +50,7 @@ int AudioInitialize(u16 timerID, u16 iicID, u32 i2sAddr);
  *                 sound state machine code                     *
  ****************************************************************/
 // True if sound_init() has been called, false otherwise.
-static bool sound_initFlag = false;
+static volatile bool sound_initFlag = false;
 
 // True if a sound should be played, false otherwise.
 // Note that the state-machine sets this back to false once it has completed

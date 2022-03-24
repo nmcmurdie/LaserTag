@@ -14,10 +14,10 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 // #define RUNNING_MODE_M3_T2
 
 // Uncomment to run continuous/shooter mode, Milestone 3, Task 3
- #define RUNNING_MODE_M3_T3
+//  #define RUNNING_MODE_M3_T3
 
 // Uncomment to run two-player mode, Milestone 5
-// #define RUNNING_MODE_M5
+#define RUNNING_MODE_M5
 
 // The following line enables the main() contained in laserTagMain.c
 // Leave this line uncommented unless you want to run some other special test
@@ -89,8 +89,8 @@ int main() {
 #endif
 
 #ifdef RUNNING_MODE_M5
-  printf("Starting two team mode\n");
-  runningModes_twoTeams();
+  printf("Running in last person standing mode\n");
+  runningModes_lastPersonStanding();
 #endif
 
   return 0;

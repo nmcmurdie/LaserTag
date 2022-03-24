@@ -5,6 +5,7 @@
 #include "trigger.h"
 #include "interrupts.h"
 #include "stdio.h"
+#include "sound.h"
 
 #define ADC_BUFFER_SIZE 10000
 #define ADC_BUFFER_EMPTY 0
@@ -36,15 +37,17 @@ void isr_init() {
   lockoutTimer_init();
   hitLedTimer_init();
   trigger_init();
+  // sound_init();
 }
 
 // This function is invoked by the timer interrupt at 100 kHz.
 void isr_function() {
-  isr_addDataToAdcBuffer(interrupts_getAdcData());
-  transmitter_tick();
-  lockoutTimer_tick();
-  hitLedTimer_tick();
-  trigger_tick();
+  // isr_addDataToAdcBuffer(interrupts_getAdcData());
+  // transmitter_tick();
+  // lockoutTimer_tick();
+  // hitLedTimer_tick();
+  // trigger_tick();
+  sound_tick();
 }
 
 // This adds data to the ADC queue. Data are removed from this queue and used by
