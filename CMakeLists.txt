@@ -1,3 +1,4 @@
+
 cmake_minimum_required (VERSION 3.14.5)
 
 project(ecen330)
@@ -69,8 +70,8 @@ add_custom_command(TARGET BOOT.bin
     COMMAND echo '//arch = zynq; split = false; format = BIN' > 330.bif
     COMMAND echo 'the_ROM_image:' >> 330.bif
     COMMAND echo '{' >> 330.bif
-    COMMAND echo '  [bootloader]../hw/fsbl.elf' >> 330.bif
-    COMMAND echo '  ../hw/330_hw_system.bit' >> 330.bif
+    COMMAND echo '  [bootloader]../platforms/hw/fsbl.elf' >> 330.bif
+    COMMAND echo '  ../platforms/hw/330_hw_system.bit' >> 330.bif
     COMMAND echo '  \${ELF_PATH}' >> 330.bif
     COMMAND echo '}' >> 330.bif
     COMMAND ${XIL_VIVADO_PATH}/bin/bootgen -image 330.bif -arch zynq -o BOOT.bin -w on

@@ -13,12 +13,23 @@
             "problemMatcher": []
         },
         {
-            "label": "make",
+            "label": "Build for Board",
             "type": "shell",
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
             "command": "clear; cmake ..; make -j4; ../run_elf_on_board.py lasertag/lasertag.elf",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Build for SD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "command": "rm -r build; mkdir build; cd build; cmake .. -D SDCARD=1; make; make BOOT.bin ELF_PATH=./lasertag/lasertag.elf",
             "group": {
                 "kind": "build",
                 "isDefault": true
