@@ -1,0 +1,4 @@
+extern uint16_t bomb[];
+#define BOMB_WAV_SAMPLE_RATE 480000
+#define BOMB_WAV_BITS_PER_SAMPLE 16
+#define BOMB_WAV_NUMBER_OF_SAMPLES 285327 
